@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.collection.ObjectCache module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Collection:ObjectCache", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -16,16 +28,15 @@
 --   Storage of keys 'retrieve' and 'default' are not allowed.                --
 --------------------------------------------------------------------------------
 
-local rawget = rawget
-local rawset = rawset
+local oo   = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Base").tPackage 
 
-local oo   = require "loop.base"
+local package = APkg and APkg.tPackage or {}
 
-module("loop.collection.ObjectCache", oo.class)
+oo.class(package)
 
-__mode = "k"
+local __mode = "k"
 
-function __index(self, key)
+local function __index(self, key)
 	if key ~= nil then
 		local value = rawget(self, "retrieve")
 		if value then
@@ -37,3 +48,9 @@ function __index(self, key)
 		return value
 	end
 end
+
+
+package.__mode = __mode
+package.__index = __index
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})

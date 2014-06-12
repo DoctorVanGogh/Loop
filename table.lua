@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.table module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Table", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -16,16 +28,9 @@
 -- usefull in applications.                                                   --
 --------------------------------------------------------------------------------
 
-local next = next
-local pairs = pairs
-local rawset = rawset
-local setmetatable = setmetatable
+local package = APkg and APkg.tPackage or {}
 
-local table = require "table"
-
-module "loop.table"
-
-setmetatable(_M, { __index = table })
+setmetatable(package, { __index = table })
 
 --------------------------------------------------------------------------------
 -- Copies all elements stored in a table into another.
@@ -42,7 +47,7 @@ setmetatable(_M, { __index = table })
 -- @usage copied = loop.table.copy(results)
 -- @usage loop.table.copy(results, newcopy)
 
-function copy(source, destiny)
+local function copy(source, destiny)
 	if source then
 		if not destiny then destiny = {} end
 		for field, value in pairs(source) do
@@ -61,7 +66,7 @@ end
 -- @param tab Table which must be cleared.
 -- @usage return loop.table.clear(results)
 
-function clear(tab)
+local function clear(tab)
 	local elem = next(tab)
 	while elem ~= nil do
 		tab[elem] = nil
@@ -69,3 +74,9 @@ function clear(tab)
 	end
 	return tab
 end
+
+
+package.copy = copy
+package.clear = clear
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})

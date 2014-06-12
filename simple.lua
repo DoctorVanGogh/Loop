@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.simple module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Simple", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -24,32 +36,29 @@
 --   subclassof(class, super)                                                 --
 --------------------------------------------------------------------------------
 
-local require = require
-local rawget  = rawget
-local pairs   = pairs
+local table = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Table").tPackage
 
-local table = require "loop.table"
+local package = APkg and APkg.tPackage or {}
 
-module "loop.simple"
 --------------------------------------------------------------------------------
-local ObjectCache = require "loop.collection.ObjectCache"
-local base        = require "loop.base"
+local ObjectCache = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Collection:ObjectCache").tPackage
+local base        = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Base").tPackage
 --------------------------------------------------------------------------------
-table.copy(base, _M)
+table.copy(base, package)
 --------------------------------------------------------------------------------
 local DerivedClass = ObjectCache {
 	retrieve = function(self, super)
 		return base.class { __index = super, __call = new }
 	end,
 }
-function class(class, super)
+local function class(class, super)
 	if super
 		then return DerivedClass[super](initclass(class))
 		else return base.class(class)
 	end
 end
 --------------------------------------------------------------------------------
-function isclass(class)
+local function isclass(class)
 	local metaclass = classof(class)
 	if metaclass then
 		return metaclass == rawget(DerivedClass, metaclass.__index) or
@@ -57,12 +66,12 @@ function isclass(class)
 	end
 end
 --------------------------------------------------------------------------------
-function superclass(class)
+local function superclass(class)
 	local metaclass = classof(class)
 	if metaclass then return metaclass.__index end
 end
 --------------------------------------------------------------------------------
-function subclassof(class, super)
+local function subclassof(class, super)
 	while class do
 		if class == super then return true end
 		class = superclass(class)
@@ -70,6 +79,14 @@ function subclassof(class, super)
 	return false
 end
 --------------------------------------------------------------------------------
-function instanceof(object, class)
+local function instanceof(object, class)
 	return subclassof(classof(object), class)
 end
+
+package.class = class
+package.isclass = isclass
+package.superclass = superclass
+package.subclassof = subclassof
+package.instanceof = instanceof
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})

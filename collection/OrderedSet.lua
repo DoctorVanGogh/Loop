@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.collection.OrderedSet module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Collection:OrderedSet", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -16,7 +28,7 @@
 --   Storage of strings equal to the name of one method prevents its usage.   --
 --------------------------------------------------------------------------------
 
-local oo = require "loop.base"
+local oo   = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Base").tPackage 
 
 --------------------------------------------------------------------------------
 -- key constants ---------------------------------------------------------------
@@ -25,8 +37,9 @@ local oo = require "loop.base"
 local FIRST = newproxy()
 local LAST = newproxy()
 
-module("loop.collection.OrderedSet", oo.class)
+local package = APkg and APkg.tPackage or {}
 
+oo.class(package)
 --------------------------------------------------------------------------------
 -- basic functionality ---------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -35,27 +48,27 @@ local function iterator(self, previous)
 	return self[previous], previous
 end
 
-function sequence(self)
+local function sequence(self)
 	return iterator, self, FIRST
 end
 
-function contains(self, element)
+local function contains(self, element)
 	return element ~= nil and (self[element] ~= nil or element == self[LAST])
 end
 
-function first(self)
+local function first(self)
 	return self[FIRST]
 end
 
-function last(self)
+local function last(self)
 	return self[LAST]
 end
 
-function empty(self)
+local function empty(self)
 	return self[FIRST] == nil
 end
 
-function insert(self, element, previous)
+local function insert(self, element, previous)
 	if element ~= nil and not contains(self, element) then
 		if previous == nil then
 			previous = self[LAST]
@@ -74,7 +87,7 @@ function insert(self, element, previous)
 	end
 end
 
-function previous(self, element, start)
+local function previous(self, element, start)
 	if contains(self, element) then
 		local previous = (start == nil and FIRST or start)
 		repeat
@@ -86,7 +99,7 @@ function previous(self, element, start)
 	end
 end
 
-function remove(self, element, start)
+local function remove(self, element, start)
 	local prev = previous(self, element, start)
 	if prev ~= nil then
 		self[prev] = self[element]
@@ -98,7 +111,7 @@ function remove(self, element, start)
 	end
 end
 
-function replace(self, old, new, start)
+local function replace(self, old, new, start)
 	local prev = previous(self, old, start)
 	if prev ~= nil and new ~= nil and not contains(self, new) then
 		self[prev] = new
@@ -111,7 +124,7 @@ function replace(self, old, new, start)
 	end
 end
 
-function pushfront(self, element)
+local function pushfront(self, element)
 	if element ~= nil and not contains(self, element) then
 		if self[FIRST] ~= nil
 			then self[element] = self[FIRST]
@@ -122,7 +135,7 @@ function pushfront(self, element)
 	end
 end
 
-function popfront(self)
+local function popfront(self)
 	local element = self[FIRST]
 	self[FIRST] = self[element]
 	if self[FIRST] ~= nil
@@ -132,7 +145,7 @@ function popfront(self)
 	return element
 end
 
-function pushback(self, element)
+local function pushback(self, element)
 	if element ~= nil and not contains(self, element) then
 		if self[LAST] ~= nil
 			then self[ self[LAST] ] = element
@@ -148,17 +161,42 @@ end
 --------------------------------------------------------------------------------
 
 -- set operations
-add = pushback
+local add = pushback
 
 -- stack operations
-push = pushfront
-pop = popfront
-top = first
+local push = pushfront
+local pop = popfront
+local top = first
 
 -- queue operations
-enqueue = pushback
-dequeue = popfront
-head = first
-tail = last
+local enqueue = pushback
+local dequeue = popfront
+local head = first
+local tail = last
 
-firstkey = FIRST
+local firstkey = FIRST
+
+
+package.sequence = sequence
+package.contains = contains
+package.first = first
+package.last = last
+package.empty = empty
+package.insert = insert
+package.previous = previous
+package.remove = remove
+package.replace = replace
+package.pushfront = pushfront
+package.popfront = popfront
+package.pushback = pushback
+package.add = add
+package.push = push
+package.pop = pop
+package.top = top
+package.enqueue = enqueue
+package.dequeue = dequeue
+package.head = head
+package.tail = tail
+package.firstkey = firstkey
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})

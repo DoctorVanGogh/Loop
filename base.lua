@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.base module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Base", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -22,47 +34,53 @@
 --   members(class)                                                           --
 --------------------------------------------------------------------------------
 
-local pairs        = pairs
-local unpack       = unpack
-local rawget       = rawget
-local setmetatable = setmetatable
-local getmetatable = getmetatable
-
-module "loop.base"
+local package = APkg and APkg.tPackage or {}
 
 --------------------------------------------------------------------------------
-function rawnew(class, object)
+local function rawnew(class, object)
 	return setmetatable(object or {}, class)
 end
 --------------------------------------------------------------------------------
-function new(class, ...)
+local function new(class, ...)
 	if class.__init
 		then return class:__init(...)
 		else return rawnew(class, ...)
 	end
 end
 --------------------------------------------------------------------------------
-function initclass(class)
+local function initclass(class)
 	if class == nil then class = {} end
 	if class.__index == nil then class.__index = class end
 	return class
 end
 --------------------------------------------------------------------------------
 local MetaClass = { __call = new }
-function class(class)
+local function class(class)
 	return setmetatable(initclass(class), MetaClass)
 end
 --------------------------------------------------------------------------------
-classof = getmetatable
+local classof = getmetatable
 --------------------------------------------------------------------------------
-function isclass(class)
+local function isclass(class)
 	return classof(class) == MetaClass
 end
 --------------------------------------------------------------------------------
-function instanceof(object, class)
+local function instanceof(object, class)
 	return classof(object) == class
 end
 --------------------------------------------------------------------------------
-memberof = rawget
+local memberof = rawget
 --------------------------------------------------------------------------------
-members = pairs
+local members = pairs
+
+
+package.rawnew = rawnew
+package.new = new
+package.initclass = initclass
+package.class = class
+package.isclass = isclass
+package.instanceof = instanceof
+package.memberof = memberof
+package.members = members
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})

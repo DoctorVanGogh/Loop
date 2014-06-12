@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.cached module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Cached", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -26,24 +38,15 @@
 --   allmembers(class)                                                        --
 --------------------------------------------------------------------------------
 
-local type         = type
-local unpack       = unpack
-local pairs        = pairs
-local rawget       = rawget
-local rawset       = rawset
-local require      = require
-local ipairs       = ipairs
-local setmetatable = setmetatable
-local select       = select
+local table = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Table").tPackage
 
-local table = require "loop.table"
+local package = APkg and APkg.tPackage or {}
 
-module "loop.cached"
 --------------------------------------------------------------------------------
-local OrderedSet  = require "loop.collection.OrderedSet"
-local base        = require "loop.multiple"
+local OrderedSet  = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Collection:OrderedSet").tPackage
+local base        = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Multiple").tPackage
 --------------------------------------------------------------------------------
-table.copy(base, _M)
+table.copy(base, package)
 --------------------------------------------------------------------------------
 local function subsiterator(queue, class)
 	class = queue[class]
@@ -54,7 +57,7 @@ local function subsiterator(queue, class)
 		return class
 	end
 end
-function subs(class)
+local function subs(class)
 	queue = OrderedSet()
 	queue:enqueue(class)
 	return subsiterator, queue, OrderedSet.firstkey
@@ -64,7 +67,7 @@ local function proxy_newindex(proxy, field, value)
 	return base.classof(proxy):updatefield(field, value)
 end
 --------------------------------------------------------------------------------
-function getclass(class)
+local function getclass(class)
 	local cached = base.classof(class)
 	if base.instanceof(cached, CachedClass) then
 		return cached
@@ -73,7 +76,7 @@ end
 --------------------------------------------------------------------------------
 local ClassMap = base.new { __mode = "k" }
 --------------------------------------------------------------------------------
-CachedClass = base.class()
+local CachedClass = base.class()
 
 function CachedClass:__init(class)
 	local meta = {}
@@ -212,36 +215,36 @@ function CachedClass:updatefield(name, member)
 	return old
 end
 --------------------------------------------------------------------------------
-function class(class, ...)
+local function class(class, ...)
 	class = getclass(class) or CachedClass(class)
 	class:updatehierarchy(...)
 	class:updateinheritance()
 	return class.proxy
 end
 --------------------------------------------------------------------------------
-function rawnew(class, object)
+local function rawnew(class, object)
 	local cached = getclass(class)
 	if cached then class = cached.class end
 	return base.rawnew(class, object)
 end
 --------------------------------------------------------------------------------
-function new(class, ...)
+local function new(class, ...)
 	if class.__init
 		then return class:__init(...)
 		else return rawnew(class, ...)
 	end
 end
 --------------------------------------------------------------------------------
-function classof(object)
+local function classof(object)
 	local class = base.classof(object)
 	return ClassMap[class] or class
 end
 --------------------------------------------------------------------------------
-function isclass(class)
+local function isclass(class)
 	return getclass(class) ~= nil
 end
 --------------------------------------------------------------------------------
-function superclass(class)
+local function superclass(class)
 	local supers = {}
 	local cached = getclass(class)
 	if cached then
@@ -267,7 +270,7 @@ local function icached(cached, index)
 	super = cached.uncached[index - #supers]
 	if super then return index, super end
 end
-function supers(class)
+local function supers(class)
 	local cached = getclass(class)
 	if cached
 		then return icached, cached, 0
@@ -275,7 +278,7 @@ function supers(class)
 	end
 end
 --------------------------------------------------------------------------------
-function subclassof(class, super)
+local function subclassof(class, super)
 	if class == super then return true end
 	for _, superclass in supers(class) do
 		if subclassof(superclass, super) then return true end
@@ -283,11 +286,11 @@ function subclassof(class, super)
 	return false
 end
 --------------------------------------------------------------------------------
-function instanceof(object, class)
+local function instanceof(object, class)
 	return subclassof(classof(object), class)
 end
 --------------------------------------------------------------------------------
-function memberof(class, name)
+local function memberof(class, name)
 	local cached = getclass(class)
 	if cached
 		then return cached.members[name]
@@ -295,7 +298,7 @@ function memberof(class, name)
 	end
 end
 --------------------------------------------------------------------------------
-function members(class)
+local function members(class)
 	local cached = getclass(class)
 	if cached
 		then return pairs(cached.members)
@@ -303,10 +306,28 @@ function members(class)
 	end
 end
 --------------------------------------------------------------------------------
-function allmembers(class)
+local function allmembers(class)
 	local cached = getclass(class)
 	if cached
 		then return pairs(cached.class)
 		else return base.members(class)
 	end
 end
+
+package.subs = subs
+package.getclass = getclass
+package.CachedClass = CachedClass
+package.class = class
+package.rawnew = rawnew
+package.new = new
+package.classof = classof
+package.isclass = isclass
+package.superclass = superclass
+package.supers = supers
+package.subclassof = subclassof
+package.instanceof = instanceof
+package.memberof = memberof
+package.members = members
+package.allmembers = allmembers
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})

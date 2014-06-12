@@ -1,3 +1,15 @@
+-----------------------------------------------------------------------------------------------
+-- Loop.multiple module repackaged for Wildstar by DoctorVanGogh
+-----------------------------------------------------------------------------------------------
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Multiple", 1
+
+-- Get a reference to the package information if any
+local APkg = Apollo.GetPackage(MAJOR)
+-- If there was an older version loaded we need to see if this is newer
+if APkg and (APkg.nVersion or 0) >= MINOR then
+	return -- no upgrade needed
+end
+
 --------------------------------------------------------------------------------
 ---------------------- ##       #####    #####   ######  -----------------------
 ---------------------- ##      ##   ##  ##   ##  ##   ## -----------------------
@@ -25,18 +37,14 @@
 --   supers(class)                                                            --
 --------------------------------------------------------------------------------
 
-local unpack  = unpack
-local require = require
-local ipairs  = ipairs
-local select  = select
+local table = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Table").tPackage
 
-local table = require "loop.table"
+local package = APkg and APkg.tPackage or {}
 
-module "loop.multiple"
 --------------------------------------------------------------------------------
-local base = require "loop.simple"
+local base = Apollo.GetPackage("DoctorVanGogh:Lib:Loop:Simple").tPackage 
 --------------------------------------------------------------------------------
-table.copy(base, _M)
+table.copy(base, package)
 --------------------------------------------------------------------------------
 local MultipleClass = {
 	__call = new,
@@ -49,14 +57,14 @@ local MultipleClass = {
 	end,
 }
 
-function class(class, ...)
+local function class(class, ...)
 	if select("#", ...) > 1
 		then return base.rawnew(table.copy(MultipleClass, {...}), initclass(class))
 		else return base.class(class, ...)
 	end
 end
 --------------------------------------------------------------------------------
-function isclass(class)
+local function isclass(class)
 	local metaclass = base.classof(class)
 	if metaclass then
 		return metaclass.__index == MultipleClass.__index or
@@ -64,7 +72,7 @@ function isclass(class)
 	end
 end
 --------------------------------------------------------------------------------
-function superclass(class)
+local function superclass(class)
 	local metaclass = base.classof(class)
 	if metaclass then
 		local indexer = metaclass.__index
@@ -80,7 +88,7 @@ local function isingle(single, index)
 		return 1, single
 	end
 end
-function supers(class)
+local function supers(class)
 	local metaclass = classof(class)
 	if metaclass then
 		local indexer = metaclass.__index
@@ -92,7 +100,7 @@ function supers(class)
 	return isingle
 end
 --------------------------------------------------------------------------------
-function subclassof(class, super)
+local function subclassof(class, super)
 	if class == super then return true end
 	for _, superclass in supers(class) do
 		if subclassof(superclass, super) then return true end
@@ -100,6 +108,15 @@ function subclassof(class, super)
 	return false
 end
 --------------------------------------------------------------------------------
-function instanceof(object, class)
+local function instanceof(object, class)
 	return subclassof(classof(object), class)
 end
+
+
+package.class = class
+package.isclass = isclass
+package.supers = supers
+package.subclassof = subclassof
+package.instanceof = instanceof
+
+Apollo.RegisterPackage(package, MAJOR, MINOR, {})
