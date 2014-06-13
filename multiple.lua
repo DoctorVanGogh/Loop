@@ -109,7 +109,7 @@ local function subclassof(class, super)
 end
 --------------------------------------------------------------------------------
 local function instanceof(object, class)
-	return subclassof(classof(object), class)
+	return subclassof(package.classof(object), class)
 end
 
 
