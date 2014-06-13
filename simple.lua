@@ -48,12 +48,12 @@ table.copy(base, package)
 --------------------------------------------------------------------------------
 local DerivedClass = ObjectCache {
 	retrieve = function(self, super)
-		return base.class { __index = super, __call = new }
+		return base.class { __index = super, __call = base.new }
 	end,
 }
 local function class(class, super)
 	if super
-		then return DerivedClass[super](initclass(class))
+		then return DerivedClass[super](base.initclass(class))
 		else return base.class(class)
 	end
 end
