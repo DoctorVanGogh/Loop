@@ -82,5 +82,6 @@ package.isclass = isclass
 package.instanceof = instanceof
 package.memberof = memberof
 package.members = members
+package.classof = classof
 
 Apollo.RegisterPackage(package, MAJOR, MINOR, {})
