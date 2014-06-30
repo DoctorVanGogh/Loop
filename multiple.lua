@@ -89,7 +89,7 @@ local function isingle(single, index)
 	end
 end
 local function supers(class)
-	local metaclass = classof(class)
+	local metaclass = base.classof(class)
 	if metaclass then
 		local indexer = metaclass.__index
 		if indexer == MultipleClass.__index
