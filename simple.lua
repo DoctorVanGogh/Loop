@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -- Loop.simple module repackaged for Wildstar by DoctorVanGogh
 -----------------------------------------------------------------------------------------------
-local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Simple", 1
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Simple", 2
 
 -- Get a reference to the package information if any
 local APkg = Apollo.GetPackage(MAJOR)
@@ -67,7 +67,7 @@ local function isclass(class)
 end
 --------------------------------------------------------------------------------
 local function superclass(class)
-	local metaclass = classof(class)
+	local metaclass = base.classof(class)
 	if metaclass then return metaclass.__index end
 end
 --------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ local function subclassof(class, super)
 end
 --------------------------------------------------------------------------------
 local function instanceof(object, class)
-	return subclassof(classof(object), class)
+	return subclassof(base.classof(object), class)
 end
 
 package.class = class
