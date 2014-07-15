@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------
 -- Loop.multiple module repackaged for Wildstar by DoctorVanGogh
 -----------------------------------------------------------------------------------------------
-local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Multiple", 1
+local MAJOR,MINOR = "DoctorVanGogh:Lib:Loop:Multiple", 2
 
 -- Get a reference to the package information if any
 local APkg = Apollo.GetPackage(MAJOR)
@@ -59,7 +59,7 @@ local MultipleClass = {
 
 local function class(class, ...)
 	if select("#", ...) > 1
-		then return base.rawnew(table.copy(MultipleClass, {...}), initclass(class))
+		then return base.rawnew(table.copy(MultipleClass, {...}), base.initclass(class))
 		else return base.class(class, ...)
 	end
 end
